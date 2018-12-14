@@ -1,0 +1,25 @@
+{
+  "name": "getfig",
+  "version": "0.0.1",
+  "description": "Configuration control for node apps",
+  "main": "./dist/index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "conf",
+    "config",
+    "configuration",
+    "getfig",
+    "config-node",
+    "env",
+    "environment"
+  ],
+  "author": "jquiceno <loncuster@gmail.com>",
+  "license": "ISC",
+  "homepage": "https://github.com/jquiceno/getfig",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/jquiceno/getfig.git"
+  }
+}
