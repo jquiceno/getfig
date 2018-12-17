@@ -5,16 +5,17 @@ import { Config } from '../src/'
 import fs from 'fs'
 import path from 'path'
 
-const config = new Config()
-
 const customConfigData = {
   production: {
     key: 'saljhdlajidpsd'
+  },
+  paths: {
+    uploads: 'uploads'
   }
 }
 
 const customConfigDirPath = path.join(__dirname, 'configDir')
-const customConfigFilePath = `${customConfigDirPath}default.json`
+const customConfigFilePath = `${customConfigDirPath}/default.json`
 
 if (!fs.existsSync(customConfigDirPath) || !fs.lstatSync(customConfigDirPath).isDirectory()) {
   fs.mkdirSync(customConfigDirPath)
@@ -52,15 +53,16 @@ if (!fs.existsSync(customConfigFilePath)) {
 // })
 
 test('Default config dir path', async t => {
+  const config = new Config()
   t.deepEqual(config.dir, process.cwd(), 'Default dir not is Equal')
 })
 
 test('Custom config Dir', async t => {
-  const getfig = new Config({
+  const configObj = new Config({
     dir: customConfigDirPath
   })
 
-  t.deepEqual(getfig.dir, customConfigDirPath, 'Default dir not is Equal')
+  t.deepEqual(configObj.dir, customConfigDirPath, 'Default dir not is Equal')
 })
 
 test('Custom config Dir by env CONFIG_DIR', async t => {
@@ -82,6 +84,15 @@ test('Custom config Dir defined by ., ..', async t => {
   const getfig = new Config()
 
   t.deepEqual(getfig.dir, configDirPath, 'Default dir not is Equal')
+})
+
+test('Config parse paths', async t => {
+  const configDirPath = process.cwd()
+
+  const config = new Config()
+  const configData = config.get()
+
+  t.deepEqual(configDirPath, configData.paths.main, 'Default dir not is Equal')
 })
 
 test.after(async t => {

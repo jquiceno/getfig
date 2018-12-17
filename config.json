@@ -1,5 +1,8 @@
 {
   "production": {
     "key": "saljhdlajidpsd"
+  },
+  "paths": {
+    "uploads": "uploads"
   }
 }
