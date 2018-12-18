@@ -25,31 +25,10 @@ if (!fs.existsSync(customConfigFilePath)) {
   fs.writeFileSync(customConfigFilePath, JSON.stringify(customConfigData))
 }
 
-// import path from 'path'
-
 // test.beforeEach(async t => {
 // })
 
 // test.afterEach(async t => {
-// })
-
-// test('Default config dir', async t => {
-//   t.deepEqual(config.dir, process.cwd(), 'Default dir not is Equal')
-//   // let e = t.throws(() => {
-//   //   throw new PmxError('Source not found', {
-//   //     status_code: 404,
-//   //     data: {
-//   //       test: 'ok'
-//   //     }
-//   //   })
-//   // })
-//   //
-//   // t.is(e.output.payload instanceof Object, true, 'Error Payload not is Object')
-//   // t.is(e.data instanceof Object, true, 'Error data not is Object')
-//   // t.deepEqual(e.output.payload.status_code, 404, 'Payload status code nos is 404')
-//   // t.deepEqual(e.data.test, 'ok', 'Custom data is invalid')
-//   // t.regex(e.message, /Source not found/, 'Error message is invalid')
-//   // t.regex(e.output.payload.message, /Source not found/, 'Error message is invalid')
 // })
 
 test('Default config dir path', async t => {
@@ -93,6 +72,26 @@ test('Config parse paths', async t => {
   const configData = config.get()
 
   t.deepEqual(configDirPath, configData.paths.main, 'Default dir not is Equal')
+})
+
+test('Get config data', async t => {
+  const config = new Config()
+  const configData = config.get()
+
+  t.is(typeof configData, 'object', 'Config data not is object')
+  t.is(typeof configData.production, 'object', 'Config data not is object')
+  t.deepEqual(configData.production.key, customConfigData.production.key, 'Config data not is correct')
+})
+
+test('Get config data with query string', async t => {
+  const config = new Config()
+  const productionConfig = config.get('production')
+  const configKey = config.get('production.key')
+  const indefinedQuery = config.get('production.test')
+
+  t.is(typeof productionConfig, 'object', 'Production config data not is object')
+  t.is(typeof indefinedQuery, 'undefined', 'Undefined query data not is object')
+  t.deepEqual(configKey, customConfigData.production.key, 'Config key not is correct')
 })
 
 test.after(async t => {

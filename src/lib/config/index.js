@@ -39,8 +39,25 @@ class Config {
     this.dir = dir
   }
 
-  get (query) {
-    return this.config
+  get (query = false, object) {
+    if (!query) {
+      return this.config
+    }
+
+    object = object || this.config
+    const elems = Array.isArray(query) ? query : query.split('.')
+    const name = elems[0]
+    const value = object[name]
+
+    if (elems.length <= 1) {
+      return value
+    }
+
+    if (value === null || typeof value !== 'object') {
+      return undefined
+    }
+
+    return this.get(elems.slice(1), value)
   }
 }
 
