@@ -94,6 +94,24 @@ test('Get config data with query string', async t => {
   t.deepEqual(configKey, customConfigData.production.key, 'Config key not is correct')
 })
 
+test('Get config by custom file', async t => {
+  const customFile = 'configrc'
+  customConfigData.custom = {
+    customFileName: customFile
+  }
+
+  fs.writeFileSync(path.join(process.cwd(), `${customFile}.json`), JSON.stringify(customConfigData))
+
+  const config = new Config({
+    file: 'configrc'
+  })
+
+  const configData = config.get('custom')
+
+  fs.unlinkSync(path.join(process.cwd(), `${customFile}.json`))
+  t.deepEqual(configData.customFileName, customFile, 'Custom data not is equal')
+})
+
 test.after(async t => {
   fs.unlinkSync(customConfigFilePath)
   fs.rmdirSync(customConfigDirPath)

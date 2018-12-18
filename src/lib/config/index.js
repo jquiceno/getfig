@@ -22,7 +22,7 @@ class Config {
       throw new Error(`The config directory ${dir} not is directory or no exist`)
     }
 
-    let configObject = utils.loadFileConfigs(dir)
+    let configObject = utils.loadFileConfigs(dir, file)
 
     if (!configObject || Object.keys(configObject).length < 1) {
       console.error(`The config data not found`)

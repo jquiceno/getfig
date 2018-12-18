@@ -3,7 +3,7 @@
 import path from 'path'
 import fs from 'fs'
 
-const baseNames = ['config', 'default']
+let baseNames = ['config', 'default']
 const extNames = ['json']
 
 module.exports = {
@@ -47,9 +47,15 @@ module.exports = {
     return configObject
   },
 
-  loadFileConfigs (configDir) {
+  loadFileConfigs (configDir, files = null) {
     const self = this
     let config = {}
+
+    if (files) {
+      files = (typeof file === 'object') ? files : [files]
+
+      baseNames = baseNames.concat(files)
+    }
 
     baseNames.forEach(baseName => {
       extNames.forEach(extName => {
@@ -85,7 +91,16 @@ module.exports = {
     baseNames.forEach(baseName => {
       extNames.forEach(extName => {
         let fullFilename = path.join(configDir, `${baseName}.${extName}`)
-        files.push(fullFilename)
+        try {
+          let stat = fs.statSync(fullFilename)
+          if (!stat || stat.size < 1) {
+            return null
+          }
+
+          files.push(fullFilename)
+        } catch (e1) {
+          return null
+        }
       })
     })
 
