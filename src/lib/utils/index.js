@@ -1,7 +1,7 @@
 'use struct'
 
-import path from 'path'
-import fs from 'fs'
+const path = require('path')
+const fs = require('fs')
 
 let baseNames = ['config', 'default']
 const extNames = ['json']
@@ -21,7 +21,7 @@ module.exports = {
   },
 
   parseFile (fullFilename) {
-    let extension = fullFilename.substr(fullFilename.lastIndexOf('.') + 1)
+    const extension = fullFilename.substr(fullFilename.lastIndexOf('.') + 1)
     let configObject = null
     let fileContent = null
     let stat = null
@@ -49,7 +49,7 @@ module.exports = {
 
   loadFileConfigs (configDir, files = null) {
     const self = this
-    let config = {}
+    const config = {}
 
     if (files) {
       files = (typeof file === 'object') ? files : [files]
@@ -60,8 +60,8 @@ module.exports = {
     baseNames.forEach(baseName => {
       extNames.forEach(extName => {
         // Try merging the config object into this object
-        let fullFilename = path.join(configDir, `${baseName}.${extName}`)
-        let configObj = self.parseFile(fullFilename)
+        const fullFilename = path.join(configDir, `${baseName}.${extName}`)
+        const configObj = self.parseFile(fullFilename)
         if (configObj) {
           Object.assign(config, configObj)
         }
@@ -86,13 +86,13 @@ module.exports = {
 
   getFileConfigs (configDir) {
     // const self = this
-    let files = []
+    const files = []
 
     baseNames.forEach(baseName => {
       extNames.forEach(extName => {
-        let fullFilename = path.join(configDir, `${baseName}.${extName}`)
+        const fullFilename = path.join(configDir, `${baseName}.${extName}`)
         try {
-          let stat = fs.statSync(fullFilename)
+          const stat = fs.statSync(fullFilename)
           if (!stat || stat.size < 1) {
             return null
           }

@@ -1,15 +1,15 @@
 'use strict'
 
-import defaults from 'defaults'
-import path from 'path'
-import fs from 'fs'
-import utils from '../utils'
+const defaults = require('defaults')
+const path = require('path')
+const fs = require('fs')
+const utils = require('../utils')
 
 class Config {
   constructor (options = {}) {
     options = defaults(options, {
-      dir: process.env['CONFIG_DIR'] || process.cwd(),
-      file: process.env['CONFIG_FILE'] || null
+      dir: process.env.CONFIG_DIR || process.cwd(),
+      file: process.env.CONFIG_FILE || null
     })
 
     let { dir, file } = options
@@ -25,7 +25,7 @@ class Config {
     let configObject = utils.loadFileConfigs(dir, file)
 
     if (!configObject || Object.keys(configObject).length < 1) {
-      console.error(`The config data not found`)
+      console.error('The config data not found')
     }
 
     configObject = utils.parsePaths(configObject)
@@ -40,22 +40,16 @@ class Config {
   }
 
   get (query = false, object) {
-    if (!query) {
-      return this.config
-    }
+    if (!query) return this.config
 
     object = object || this.config
     const elems = Array.isArray(query) ? query : query.split('.')
     const name = elems[0]
     const value = object[name]
 
-    if (elems.length <= 1) {
-      return value
-    }
+    if (elems.length <= 1) return value
 
-    if (value === null || typeof value !== 'object') {
-      return undefined
-    }
+    if (value === null || typeof value !== 'object') return undefined
 
     return this.get(elems.slice(1), value)
   }

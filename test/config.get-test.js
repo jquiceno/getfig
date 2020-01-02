@@ -1,9 +1,9 @@
 'use strict'
 
-import test from 'ava'
-import { Config } from '../src/'
-import fs from 'fs'
-import path from 'path'
+const test = require('ava')
+const { Config } = require('../src/')
+const fs = require('fs')
+const path = require('path')
 
 const customConfigData = {
   production: {
@@ -45,7 +45,7 @@ test('Custom config Dir', async t => {
 })
 
 test('Custom config Dir by env CONFIG_DIR', async t => {
-  process.env['CONFIG_DIR'] = customConfigDirPath
+  process.env.CONFIG_DIR = customConfigDirPath
 
   const getfig = new Config()
 
@@ -54,7 +54,7 @@ test('Custom config Dir by env CONFIG_DIR', async t => {
 
 test('Custom config Dir defined by ., ..', async t => {
   const configDirPath = process.cwd()
-  process.env['CONFIG_DIR'] = '.'
+  process.env.CONFIG_DIR = '.'
 
   if (!fs.existsSync(configDirPath) || !fs.lstatSync(configDirPath).isDirectory()) {
     fs.mkdirSync(configDirPath)

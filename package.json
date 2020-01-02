@@ -2,11 +2,9 @@
   "name": "getfig",
   "version": "0.0.2",
   "description": "Configuration control for node apps",
-  "main": "./dist/index.js",
+  "main": "./src/index.js",
   "scripts": {
-    "dev": "npm run lint && NODE_ENV=test babel ./src/index.js",
-    "build": "babel src --out-dir dist",
-    "watch": "babel src --out-dir dist --watch",
+    "dev": "npm run lint && NODE_ENV=test node ./src/index.js",
     "test": "npm run lint && NODE_ENV=test ava -v",
     "lint": "standard"
   },
@@ -27,21 +25,10 @@
     "url": "https://github.com/jquiceno/getfig.git"
   },
   "devDependencies": {
-    "@babel/cli": "^7.0.0",
-    "@babel/core": "^7.0.1",
-    "@babel/plugin-transform-async-to-generator": "^7.0.0",
-    "@babel/plugin-transform-runtime": "^7.0.0",
-    "@babel/preset-env": "^7.0.0",
-    "@babel/register": "^7.0.0",
-    "@babel/runtime": "^7.0.0",
-    "ava": "^0.25.0",
-    "babel-eslint": "^10.0.1",
-    "standard": "^12.0.1"
+    "ava": "^2.4.0",
+    "standard": "^14.3.1"
   },
   "ava": {
-    "require": [
-      "@babel/register"
-    ],
     "files": [
       "./test/*-test.js"
     ],
