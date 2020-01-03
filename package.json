@@ -1,6 +1,6 @@
 {
   "name": "getfig",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "Configuration control for node apps",
   "main": "./src/index.js",
   "scripts": {
