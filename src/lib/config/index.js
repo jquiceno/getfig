@@ -4,15 +4,17 @@ const defaults = require('defaults')
 const path = require('path')
 const fs = require('fs')
 const utils = require('../utils')
+require('dotenv').config()
 
 class Config {
   constructor (options = {}) {
     options = defaults(options, {
       dir: process.env.CONFIG_DIR || process.cwd(),
-      file: process.env.CONFIG_FILE || null
+      file: process.env.CONFIG_FILE || null,
+      exclude: []
     })
 
-    let { dir, file } = options
+    let { dir, file, exclude } = options
 
     if (dir.indexOf('.') === 0) {
       dir = path.join(process.cwd(), dir)
@@ -33,6 +35,10 @@ class Config {
     configObject.paths.main = process.cwd()
     configObject.paths.dir = dir
     configObject.paths.files = utils.getFileConfigs(dir)
+
+    if (exclude.indexOf('env') < 0) {
+      configObject.env = process.env
+    }
 
     this.config = configObject
     this.fileName = file

@@ -31,8 +31,13 @@ test.before(async t => {
   t.context.customConfigData = customConfigData
 })
 
-// test.afterEach(async t => {
-// })
+test('Get env vars in config', async t => {
+  const config = new Config()
+  const env = config.get('env')
+
+  t.deepEqual(env.NODE_ENV, 'test')
+  t.deepEqual(config.dir, process.cwd(), 'Default dir not is Equal')
+})
 
 test('Default config dir path', async t => {
   const config = new Config()

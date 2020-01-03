@@ -6,7 +6,8 @@
   "scripts": {
     "dev": "npm run lint && NODE_ENV=test node ./src/index.js",
     "test": "npm run lint && NODE_ENV=test ava -v",
-    "lint": "standard"
+    "lint": "standard",
+    "dev:test": "NODE_ENV=test ava -svw"
   },
   "keywords": [
     "conf",
@@ -37,6 +38,7 @@
     ]
   },
   "dependencies": {
-    "defaults": "^1.0.3"
+    "defaults": "^1.0.3",
+    "dotenv": "^8.2.0"
   }
 }
