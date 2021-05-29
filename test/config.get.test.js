@@ -1,7 +1,7 @@
 'use strict'
 
 const test = require('ava')
-const { Config } = require('../src/')
+const { Config } = require('../src')
 const fs = require('fs')
 const path = require('path')
 
@@ -128,6 +128,17 @@ test('Get config by custom file', async t => {
 
   fs.unlinkSync(path.join(process.cwd(), `${customFile}.json`))
   t.deepEqual(configData.customFileName, customFile, 'Custom data not is equal')
+})
+
+test('Error: invalid config directory', async t => {
+  const error = t.throws(() => {
+    return new Config({
+      exclude: ['env'],
+      dir: './test/invalid/directory'
+    })
+  })
+
+  t.regex(error.message, /not is directory or no exist/)
 })
 
 test.after(async t => {
