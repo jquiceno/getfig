@@ -7,7 +7,46 @@ const fs = require('fs')
 const utils = require('../utils')
 
 class Config {
-  constructor (options = {}) {
+  constructor () {
+    this.filesPatters = ['**/*.config.*', '**/config.*']
+    this.extensions = ['json', 'js']
+    this.config = {
+      paths: {}
+    }
+    this.i = false
+  }
+
+  get (query = false, object) {
+    if (!this.i) this.init()
+    if (!query) return this.config
+
+    object = object || this.config
+    const elems = Array.isArray(query) ? query : query.split('.')
+    const name = elems[0]
+    const value = object[name]
+
+    if (elems.length <= 1) return value
+
+    if (value === null || typeof value !== 'object') return undefined
+
+    return this.get(elems.slice(1), value)
+  }
+
+  add (...patters) {
+    patters = Array.isArray(patters) ? patters : [patters]
+
+    const configFromFiles = utils.loadFiles(patters, {
+      extensions: this.extensions
+    })
+
+    this.config = { ...this.config, ...configFromFiles.data }
+    this.config.paths.config = configFromFiles.paths
+    this.config.paths = utils.resolvePaths(this.config.paths)
+
+    return this.config
+  }
+
+  init2 (options) {
     options = defaults(options, {
       dir: process.env.CONFIG_DIR || process.cwd(),
       file: process.env.CONFIG_FILE || null,
@@ -46,20 +85,28 @@ class Config {
     this.dir = dir
   }
 
-  get (query = false, object) {
-    if (!query) return this.config
+  init (options) {
+    options = defaults(options, {
+      // dir: process.cwd(),
+      defaultFiles: true,
+      files: [],
+      env: true
+    })
 
-    object = object || this.config
-    const elems = Array.isArray(query) ? query : query.split('.')
-    const name = elems[0]
-    const value = object[name]
+    this.i = true
 
-    if (elems.length <= 1) return value
+    const { env, defaultFiles } = options
+    let { files } = options
 
-    if (value === null || typeof value !== 'object') return undefined
+    files = Array.isArray(files) ? files : [files]
+    files = defaultFiles ? this.filesPatters.concat(files) : files
 
-    return this.get(elems.slice(1), value)
+    this.add(...files)
+
+    if (env) {
+      this.config.env = process.env
+    }
   }
 }
 
-module.exports = Config
+module.exports = new Config()

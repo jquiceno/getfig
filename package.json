@@ -41,6 +41,7 @@
   },
   "dependencies": {
     "defaults": "^1.0.3",
-    "dotenv": "^10.0.0"
+    "dotenv": "^10.0.0",
+    "glob": "^7.1.7"
   }
 }

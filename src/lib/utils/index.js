@@ -2,9 +2,10 @@
 
 const path = require('path')
 const fs = require('fs')
+const glob = require('glob')
 
 let baseNames = ['config', 'default']
-const extNames = ['json']
+const extNames = ['json', 'js']
 
 function parseFile (fullFilename) {
   const extension = fullFilename.substr(fullFilename.lastIndexOf('.') + 1)
@@ -64,17 +65,17 @@ function loadFileConfigs (configDir, files = null) {
   return config
 }
 
-function parsePaths (configObj) {
-  if (!configObj.paths) {
-    configObj.paths = {}
-    return configObj
-  }
+function resolvePaths (paths) {
+  Object.keys(paths).forEach(p => {
+    if (typeof paths[p] === 'object') {
+      return resolvePaths(paths[p])
+    }
 
-  Object.keys(configObj.paths).map((p, i) => {
-    const newPath = path.join(process.cwd(), configObj.paths[p])
-    configObj.paths[p] = newPath
+    const newPath = path.join(process.cwd(), paths[p])
+    paths[p] = newPath
   })
-  return configObj
+
+  return paths
 }
 
 function getFileConfigs (configDir) {
@@ -99,10 +100,85 @@ function getFileConfigs (configDir) {
   return files
 }
 
+function getFileExtension (fileName) {
+  const extension = fileName.substr(fileName.lastIndexOf('.') + 1)
+  // console.log(path.extname(fileName).split('.')[1])
+
+  return extension
+}
+
+function findFiles (patter, { extensions } = {}) {
+  const files = glob.sync(patter, {
+    ignore: '**/node_modules/**'
+  })
+
+  if (extensions) return files.filter(filePath => extensions.includes(getFileExtension(filePath)))
+
+  return files
+}
+
+function loadFilesFromDir (dirPath, { extensions } = {}) {
+  const patter = `${dirPath}/*`
+  const files = findFiles(patter)
+
+  return files
+}
+
+function loadFiles (patters, { extensions } = {}) {
+  const cwd = process.cwd()
+  patters = Array.isArray(patters) ? patters : [patters]
+
+  let filesPaths = []
+  let data = {}
+
+  patters.forEach(patter => {
+    const files = findFiles(patter, { extensions })
+
+    filesPaths = filesPaths.concat(files)
+  })
+
+  filesPaths.forEach(file => {
+    const dataFromFile = require(`${cwd}/${file}`)
+    if (!dataFromFile || typeof dataFromFile !== 'object') return
+    data = mergeObjects([data, dataFromFile])
+  })
+
+  return {
+    paths: filesPaths,
+    data
+  }
+}
+
+function mergeObjects (objectsList) {
+  let finalObjt = {}
+
+  for (const key in objectsList) {
+    const obj = objectsList[key]
+
+    if (key === 0) {
+      finalObjt = obj
+      return
+    }
+
+    Object.keys(obj).forEach(key => {
+      if (typeof finalObjt[key] !== 'object') {
+        finalObjt[key] = obj[key]
+        return
+      }
+
+      finalObjt[key] = mergeObjects([finalObjt[key], obj[key]])
+    })
+  }
+
+  return finalObjt
+}
+
 module.exports = {
   parseFile,
   parseString,
   loadFileConfigs,
-  parsePaths,
-  getFileConfigs
+  resolvePaths,
+  getFileConfigs,
+  loadFilesFromDir,
+  loadFiles
 }
