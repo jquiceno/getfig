@@ -1,23 +1,31 @@
 'use strict'
 
 require('dotenv').config()
-const defaults = require('defaults')
-const path = require('path')
-const fs = require('fs')
 const utils = require('../utils')
+const Str = require('@supercharge/strings')
+
+const { CONFIG_ENV, CONFIG_FILES_DEFAULT } = process.env
 
 class Config {
   constructor () {
-    this.filesPatters = ['**/*.config.*', '**/config.*']
+    this.filesPatters = ['**/*.config.*', '**/config.*', '**/config/index.js']
     this.extensions = ['json', 'js']
     this.config = {
       paths: {}
     }
-    this.i = false
+
+    if (CONFIG_FILES_DEFAULT !== 'false') {
+      this.add({
+        patters: this.filesPatters
+      })
+    }
+
+    if (CONFIG_ENV !== 'false') {
+      this.config.env = process.env
+    }
   }
 
   get (query = false, object) {
-    if (!this.i) this.init()
     if (!query) return this.config
 
     object = object || this.config
@@ -32,81 +40,36 @@ class Config {
     return this.get(elems.slice(1), value)
   }
 
-  add (...patters) {
+  add ({ key = false, patters = [] } = {}) {
     patters = Array.isArray(patters) ? patters : [patters]
 
-    const configFromFiles = utils.loadFiles(patters, {
+    const { data, paths } = utils.loadFiles(patters, {
       extensions: this.extensions
     })
 
-    this.config = { ...this.config, ...configFromFiles.data }
-    this.config.paths.config = configFromFiles.paths
+    if (key) {
+      key = Str(key).camel().get()
+      this.config[key] = { ...this.config[key], ...data }
+    } else {
+      this.config = { ...this.config, ...data }
+    }
+
+    this.config.paths.config = paths
     this.config.paths = utils.resolvePaths(this.config.paths)
 
     return this.config
   }
 
-  init2 (options) {
-    options = defaults(options, {
-      dir: process.env.CONFIG_DIR || process.cwd(),
-      file: process.env.CONFIG_FILE || null,
-      exclude: []
+  init () {
+    const envConfigs = utils.getConfigsFromObject(process.env)
+
+    Object.keys(envConfigs).forEach(key => {
+      this.add({ key, patters: envConfigs[key] })
     })
-
-    let { dir, file, exclude } = options
-
-    dir = (dir[0] !== '.') ? dir : path.join(process.cwd(), dir)
-
-    if (!fs.existsSync(dir) || !fs.lstatSync(dir).isDirectory()) {
-      throw new Error(`The config directory ${dir} not is directory or no exist`)
-    }
-
-    let configObject = utils.loadFileConfigs(dir, file)
-
-    configObject = utils.parsePaths(configObject)
-
-    configObject.paths = {
-      ...configObject.paths,
-      main: process.cwd(),
-      dir,
-      files: utils.getFileConfigs(dir)
-    }
-
-    if (exclude.indexOf('env') < 0) {
-      configObject.env = process.env
-    }
-
-    if (!configObject || Object.keys(configObject).length < 1) {
-      console.error('The config data not found')
-    }
-
-    this.config = configObject
-    this.fileName = file
-    this.dir = dir
-  }
-
-  init (options) {
-    options = defaults(options, {
-      // dir: process.cwd(),
-      defaultFiles: true,
-      files: [],
-      env: true
-    })
-
-    this.i = true
-
-    const { env, defaultFiles } = options
-    let { files } = options
-
-    files = Array.isArray(files) ? files : [files]
-    files = defaultFiles ? this.filesPatters.concat(files) : files
-
-    this.add(...files)
-
-    if (env) {
-      this.config.env = process.env
-    }
   }
 }
 
-module.exports = new Config()
+const config = new Config()
+config.init()
+
+module.exports = config

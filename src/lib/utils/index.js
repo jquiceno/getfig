@@ -157,20 +157,42 @@ function mergeObjects (objectsList) {
 
     if (key === 0) {
       finalObjt = obj
+      console.log(finalObjt)
       return
     }
 
     Object.keys(obj).forEach(key => {
-      if (typeof finalObjt[key] !== 'object') {
+      // if (typeof finalObjt[key] === 'object') {
+      //   finalObjt[key] = mergeObjects([finalObjt[key], obj[key]])
+      // }
+
+      if (!finalObjt[key]) {
         finalObjt[key] = obj[key]
         return
       }
 
-      finalObjt[key] = mergeObjects([finalObjt[key], obj[key]])
+      finalObjt[key] = !Array.isArray(finalObjt[key]) ? [finalObjt[key]] : finalObjt[key]
+
+      return finalObjt[key].push(obj[key])
     })
   }
 
   return finalObjt
+}
+
+function getConfigsFromObject (configsObject = {}) {
+  const config = {}
+  for (const key in configsObject) {
+    if (!key.startsWith('CONFIG_')) continue
+
+    const configKey = key.split('CONFIG_')[1]
+
+    if (!configKey || ['ENV'].includes(configKey)) continue
+
+    config[configKey] = configsObject[key]
+  }
+
+  return config
 }
 
 module.exports = {
@@ -180,5 +202,6 @@ module.exports = {
   resolvePaths,
   getFileConfigs,
   loadFilesFromDir,
-  loadFiles
+  loadFiles,
+  getConfigsFromObject
 }
